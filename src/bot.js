@@ -24,7 +24,7 @@ client.on('ready', () => {
 //     }
 // })
 
-client.on('message', (message) => {
+client.on('message', async (message) => {
     if(message.author.bot === true) return;
     if (message.content.startsWith(PREFIX)){
         const [CMD_NAME, ...args] = message.content 
@@ -37,7 +37,8 @@ client.on('message', (message) => {
             
         if (CMD_NAME === 'kick'){ // this CMD is a moderator CMD
             //message.channel.send('kicked the user');
-            if(message.member.hasPermission('KICK_MEMBERS')) return message.reply('You do not have permssin to use this command')
+            if(message.member.hasPermission('KICK_MEMBERS')) 
+                return message.reply('You do not have permssin to use this command')
             if(args.length === 0) return message.reply('Please provide an ID');
             const member = message.guild.members.cache.get(args[0]);
             if (member) {
@@ -49,7 +50,20 @@ client.on('message', (message) => {
                 message.channel.send('That member was not found')
             }
 
-        } 
+        } else if (CMD_NAME === 'ban') {
+            if(message.member.hasPermission('BAN_MEMBERS')) 
+                return message.reply('You do not have permssin to use this command');
+            if(args.length === 0) return message.reply('Please provide an ID');
+
+            try {
+                const user = await message.guild.members.ban(args[0])
+                message.channel.send('user was banned')
+            } catch (err) {
+                message.channel.send('An error occurred. Either I do not have permission or this user is not found.');
+            }
+                
+
+        }
     }
 })
 
